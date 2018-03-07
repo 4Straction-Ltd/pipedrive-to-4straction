@@ -1,3 +1,8 @@
 /obj
 /bin
 /.vs/pipedrive-to-4straction/v14/*.suo
+/.vs
+/temp
+/packages/System.ValueTuple.4.4.0
+/packages/Newtonsoft.Json.11.0.1
+/packages/RestSharp.106.2.1
