@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using IO.Swagger.Client;
 using IO.Swagger.Api;
 using IO.Swagger.Model;
+using Newtonsoft.Json;
+using System.Globalization;
 
 namespace pipedrive_to_4straction
 {
@@ -15,67 +17,104 @@ namespace pipedrive_to_4straction
         static void Main(string[] args)
         {
 
-            /*
-             * Consume API from yaml description and generate client
-             * -> separate command line switch?
-             * -> do we really need swagger?
-             * → only couple entities. Or then generate data beforehand (no update)
-             * 
-             * Read companies
-             * -> read companies with access to
-             * 
-             * Read pipedrive settings
-             * -> read settings
-             * 
-             * Iterate pipelines and stages
-             * -> Write data to 4straction
-             * 
-             * Settings:
-             * 4Straction API credentials
-             * 
-             * get only partial classes
-             * - UserCompanyAccess -> loadMyAccess()
-             * - iterate each company
-             * - get settings
-             * - read pipedrive
-             * - push to 4straction
-             * 
-             * Settings (app.config)
-             * 4straction credentials
-             */
-
             Configuration config = new Configuration();
+            config.AddDefaultHeader("4S-API-User-ID", "");
+            config.AddDefaultHeader("4S-API-User-Password", "");
+            config.AddDefaultHeader("4S-API-Partner-Key", "");
+            config.AddDefaultHeader("4S-API-CompanyID-Override", "");
 
-            //https://4straction.io/v1/CompanyFunction/loadAll?4S-API-User-ID=risto.matikainen@4straction.com&4S-API-User-Password=Kolmendal&4S-API-Partner-Key=65180b15884bf62abf91e6d586504af7
 
-            /*  */
-            config.AddDefaultHeader("4S-API-User-ID", "risto.matikainen@4straction.com");
-            config.AddDefaultHeader("4S-API-User-Password", "K0lmendal");
-            config.AddDefaultHeader("4S-API-Partner-Key", "65180b15884bf62abf91e6d586504af7");
-            config.AddDefaultHeader("4S-API-Organization-Identifier-Override", "2700787-8");
+            Pipedrive.PipeDriveImportSettings settings = new Pipedrive.PipeDriveImportSettings();
+            settings.RootDomain = "https://xxxx.pipedrive.com/v1/";
+            settings.ApiKey = "";
 
-            // should we expose business id to company report?
+            settings.Pipelines = new List<Pipedrive.PipeDrivePipelineSettings>() {
+                new Pipedrive.PipeDrivePipelineSettings() {
+                    PipelineID = 0,
+                    Name = "xx",
+                    Link = new CorporateStructureLink(),
+                    Stages = new List<Pipedrive.PipeDriveStageImportSettings>() {
+                    new Pipedrive.PipeDriveStageImportSettings() {
+                        StageId = 0,
+                        Name = "",
+                        IncludeDescription = false,
+                        IndicatorCountId = 0,
+                        IndicatorSumId = 0,
+                        IndicatorCumulativeSumId = 0
+                    }
+                    }
+                }
+            };
 
-            UserCompanyAccessApi accesses = new UserCompanyAccessApi(config);
-            foreach (UserCompanyAccessReport access in accesses.UserCompanyAccessLoadMyAccessGet(""))
+            _4Straction.PerformanceIndicatorStorage storage = new _4Straction.PerformanceIndicatorStorage();
+
+            foreach (Pipedrive.PipeDrivePipelineSettings pipeline in settings.Pipelines)
             {
-                Console.WriteLine(access.CompanyName);
+                Console.WriteLine(" Accessing pipeline: " + pipeline.Name);
+
+                foreach (Pipedrive.PipeDriveStageImportSettings stage in pipeline.Stages)
+                {
+                    int pagingStart = 0;
+                    bool moreResults = true;
+
+                    do
+                    {
+                        util.HTTPRequest http = new util.HTTPRequest();
+                        String reply = http.DoGetRequest(settings.RootDomain + "/deals?start=" + pagingStart + "&stage_id=" + stage.StageId + "&api_token=" + settings.ApiKey);
+                        dynamic rawResponse = (dynamic)JsonConvert.DeserializeObject(reply);
+
+                        Console.WriteLine("  Accessing stage: " + stage.StageId);
+
+                        foreach (dynamic row in rawResponse.data)
+                        {
+
+                            DateTime addTime = DateTime.ParseExact((String)row.add_time, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                            String statusChangeRaw = (String)row.stage_change_time;
+                            DateTime lastStatusChangeTime = addTime;
+
+                            // modify link here if you need to add more
+                            // detailed filters such as product segments, customer segments..
+                            CorporateStructureLink corporateLink = pipeline.Link;
+
+                            if (!string.IsNullOrEmpty(statusChangeRaw))
+                            {
+                                lastStatusChangeTime = DateTime.ParseExact(statusChangeRaw, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                            }
+
+                            if (stage.IndicatorCountId != 0) {
+                                storage.addMonthValue(lastStatusChangeTime.Year, lastStatusChangeTime.Month, corporateLink, stage.IndicatorCountId, 1);
+                            }
+
+                            if (stage.IndicatorSumId != 0) {
+                                storage.addMonthValue(lastStatusChangeTime.Year, lastStatusChangeTime.Month, corporateLink, stage.IndicatorSumId, (double)row.value);
+                            }
+
+                        }
+
+                        if ((bool)rawResponse.success)
+                        {
+                            if ((bool)rawResponse.additional_data.pagination.more_items_in_collection)
+                            {
+                                pagingStart = rawResponse.additional_data.pagination.start + rawResponse.additional_data.pagination.limit + 1;
+                                moreResults = true;
+                            }
+                            else
+                            {
+                                moreResults = false;
+                            }
+                        }
+                    }
+                    while (moreResults);
+                }
             }
 
-            // client id?!
-            // http methods!?
-            // indicatorids is just "body" here. Not really helpful
-            // mergeIndicatordata not available in swagger
 
-            PerformanceIndicatorMonthDataApi months = new PerformanceIndicatorMonthDataApi(config);
-            List<int?> indicators = new List<int?>();
-            indicators.Add(208);
-
-            foreach (PerformanceIndicatorMonthData data in months.PerformanceIndicatorMonthDataLoadCompetitorValuesForYearPut("", indicators, 2017, 30))
+            foreach (_4Straction.PerformanceIndicatorMonthData data in storage.getRows())
             {
-                Console.WriteLine(data.ID);
+                Console.WriteLine($"Merging value indicator: {data.IndicatorId} to {data.Year}/{data.Month} with value: {data.Actual}");
+                PerformanceIndicatorMonthDataApi months = new PerformanceIndicatorMonthDataApi(config);
+                months.PerformanceIndicatorMonthDataMergeTargetValuePut("", data.Link, data.Year, data.Month, data.IndicatorId, data.Actual, 0, 0, 0, null, null);
             }
-
 
         }
     }

@@ -58,6 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="4Straction\PerformanceIndicatorMonthData.cs" />
+    <Compile Include="4Straction\PerformanceIndicatorMonthLink.cs" />
+    <Compile Include="4Straction\PerformanceIndicatorStorage.cs" />
     <Compile Include="Client\Api\PerformanceIndicatorMonthDataApi.cs" />
     <Compile Include="Client\Api\UserCompanyAccessApi.cs" />
     <Compile Include="Client\Client\ApiClient.cs" />
@@ -71,8 +74,12 @@
     <Compile Include="Client\Model\PerformanceIndicatorMonthData.cs" />
     <Compile Include="Client\Model\UserCompanyAccess.cs" />
     <Compile Include="Client\Model\UserCompanyAccessReport.cs" />
+    <Compile Include="Pipedrive\PipeDriveImportSettings.cs" />
+    <Compile Include="Pipedrive\PipeDrivePipelineSettings.cs" />
+    <Compile Include="Pipedrive\PipeDriveStageImportSettings.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="util\HTTPRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
