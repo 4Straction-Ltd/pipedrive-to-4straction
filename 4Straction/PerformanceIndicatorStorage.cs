@@ -20,7 +20,7 @@ namespace pipedrive_to_4straction._4Straction
             PerformanceIndicatorMonthLink dataLink = new PerformanceIndicatorMonthLink();
             dataLink.Year = year;
             dataLink.Month = month;
-            dataLink.Link = link;
+            dataLink.Link = new IO.Swagger.Model.CorporateStructureLink(link.ProductID, link.GeoAreaID, link.CustomerID, link.CompetitorID, link.SupplierID, link.PartnerID, link.OtherPlayerID, link.CompanyLegalEntityID, link.CompanyFunctionID);
             dataLink.IndicatorId = indicatorId;
 
             if (m_values.ContainsKey(dataLink)) {
