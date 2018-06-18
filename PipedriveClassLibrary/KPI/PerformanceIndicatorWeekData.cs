@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace pipedrive_to_4straction._4Straction
+namespace PipedriveClassLibrary.KPI
 {
-    public class PerformanceIndicatorMonthData : PerformanceIndicatorMonthLink
+    public class PerformanceIndicatorWeekData : PerformanceIndicatorWeekDataLink
     {
         private double m_actual;
 
-        public PerformanceIndicatorMonthData(PerformanceIndicatorMonthLink link, double actual)
+        public PerformanceIndicatorWeekData(PerformanceIndicatorWeekDataLink link, double actual)
         {
             base.Link = link.Link;
-            base.IndicatorId  = link.IndicatorId;
-            base.Month = link.Month;
+            base.IndicatorId = link.IndicatorId;
+            base.WeekNumber = link.WeekNumber;
             base.Year = link.Year;
             m_actual = actual;
         }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IO.Swagger.Model;
 
-namespace pipedrive_to_4straction._4Straction
+namespace PipedriveClassLibrary.KPI
 {
     public class PerformanceIndicatorMonthLink
     {

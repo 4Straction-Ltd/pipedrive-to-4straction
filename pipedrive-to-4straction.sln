@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pipedrive-to-4straction", "pipedrive-to-4straction.csproj", "{D4F17B4A-EB78-4629-872F-39790DA06C46}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pipedrive-to-4straction", "MainApplication\pipedrive-to-4straction.csproj", "{D4F17B4A-EB78-4629-872F-39790DA06C46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipedriveClassLibrary", "PipedriveClassLibrary\PipedriveClassLibrary.csproj", "{68A309E0-ABF5-4A54-B63E-B0F8888A0D0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{D4F17B4A-EB78-4629-872F-39790DA06C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4F17B4A-EB78-4629-872F-39790DA06C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4F17B4A-EB78-4629-872F-39790DA06C46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68A309E0-ABF5-4A54-B63E-B0F8888A0D0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68A309E0-ABF5-4A54-B63E-B0F8888A0D0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68A309E0-ABF5-4A54-B63E-B0F8888A0D0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68A309E0-ABF5-4A54-B63E-B0F8888A0D0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

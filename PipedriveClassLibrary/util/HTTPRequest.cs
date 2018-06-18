@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
-namespace util
+namespace PipedriveClassLibrary.util
 {
     public class HTTPRequest
     {
